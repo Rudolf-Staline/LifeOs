@@ -1,0 +1,4 @@
+# LifeOS — Fichiers ignorés par Git
+.env
+env.js
+env.example.js
