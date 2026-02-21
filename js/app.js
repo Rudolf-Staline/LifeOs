@@ -79,6 +79,11 @@ const App = (() => {
         bindTradeForm();
         bindPositionForm();
         bindTWatchlistForm();
+        bindQuoteForm();
+        bindMoodForm();
+        bindBookmarkForm();
+        bindJournalForm();
+        bindChallengeForm();
         bindFilters();
         bindExportImport();
         bindMisc();
@@ -299,6 +304,31 @@ const App = (() => {
         // Initialize trading watchlist storage
         if (typeof TradingWatchlist !== 'undefined') {
             await TradingWatchlist.initStorage();
+        }
+
+        // Initialize quotes storage
+        if (typeof Quotes !== 'undefined') {
+            await Quotes.initStorage();
+        }
+
+        // Initialize moods storage
+        if (typeof Moods !== 'undefined') {
+            await Moods.initStorage();
+        }
+
+        // Initialize bookmarks storage
+        if (typeof Bookmarks !== 'undefined') {
+            await Bookmarks.initStorage();
+        }
+
+        // Initialize journals storage
+        if (typeof Journals !== 'undefined') {
+            await Journals.initStorage();
+        }
+
+        // Initialize challenges storage
+        if (typeof Challenges !== 'undefined') {
+            await Challenges.initStorage();
         }
 
         // Apply module visibility from settings
@@ -531,6 +561,11 @@ const App = (() => {
             wishlist: 'Wishlist',
             documents: 'Documents',
             collections: 'Collections',
+            quotes: 'Citations & Inspirations',
+            moods: 'Suivi d\'Humeur',
+            bookmarks: 'Signets & Liens',
+            journals: 'Journal Intime',
+            challenges: 'Défis Personnels',
             reports: 'Rapports & Analyses',
             audit: 'Journal d\'audit',
             spiritual: 'Vie Spirituelle',
@@ -580,6 +615,11 @@ const App = (() => {
             wishlist: 'Vos envies & souhaits',
             documents: 'Vos documents importants',
             collections: 'Vos trésors de collection',
+            quotes: 'Collectez l\'inspiration',
+            moods: 'Suivez votre bien-être',
+            bookmarks: 'Vos liens favoris',
+            journals: 'Exprimez vos pensées',
+            challenges: 'Relevez vos défis',
             reports: 'Statistiques avancées',
             audit: 'Traçabilité',
             spiritual: 'Tableau de bord spirituel',
@@ -656,6 +696,11 @@ const App = (() => {
             case 'wishlist': await renderWishlist(); break;
             case 'documents': await renderDocuments(); break;
             case 'collections': await renderCollections(); break;
+            case 'quotes': await renderQuotes(); break;
+            case 'moods': await renderMoods(); break;
+            case 'bookmarks': await renderBookmarks(); break;
+            case 'journals': await renderJournals(); break;
+            case 'challenges': await renderChallenges(); break;
             case 'trades': await renderTrades(); break;
             case 'portfolio': await renderPortfolio(); break;
             case 'trading-watchlist': await renderTWatchlist(); break;
@@ -5313,6 +5358,483 @@ const App = (() => {
     async function toggleIdeaFavorite(id) { await Ideas.toggleFavorite(id); await renderIdeas(); }
 
     // ===================================================================
+    //  QUOTES VIEW
+    // ===================================================================
+    async function renderQuotes() {
+        const stats = await Quotes.getStats();
+        document.getElementById('quote-stat-total').textContent = stats.total;
+        document.getElementById('quote-stat-authors').textContent = stats.authors;
+        document.getElementById('quote-stat-categories').textContent = stats.categories;
+        document.getElementById('quote-stat-fav').textContent = stats.favorites;
+
+        let items = await Quotes.getAll();
+        const catF = document.getElementById('quote-filter-category')?.value;
+        if (catF) items = items.filter(i => i.category === catF);
+
+        const grid = document.getElementById('quotes-grid');
+        const empty = document.getElementById('quotes-empty');
+        if (!items.length) { grid.innerHTML = ''; grid.appendChild(empty); empty.style.display = ''; return; }
+        if (empty) empty.style.display = 'none';
+
+        grid.innerHTML = items.map(q => {
+            const cat = Quotes.getCategoryInfo(q.category);
+            return `<div class="quote-card glass-card" style="border-left: 4px solid var(--primary)">
+                <div class="quote-card-header">
+                    <span class="badge">${cat.icon} ${cat.label}</span>
+                    ${q.favorite ? '<i class="fas fa-heart text-rose"></i>' : ''}
+                </div>
+                <blockquote class="quote-text">"${q.text}"</blockquote>
+                ${q.author ? `<div class="quote-author">— ${q.author}</div>` : ''}
+                ${q.source ? `<div class="quote-source"><i class="fas fa-book"></i> ${q.source}</div>` : ''}
+                ${q.tags ? `<div class="quote-tags">${q.tags.split(',').map(t => `<span class="tag">${t.trim()}</span>`).join('')}</div>` : ''}
+                <div class="quote-card-actions">
+                    <button class="btn" onclick="App.toggleQuoteFavorite('${q.id}')"><i class="fas fa-heart ${q.favorite ? 'text-rose' : ''}"></i></button>
+                    <button class="btn" onclick="App.editQuote('${q.id}')"><i class="fas fa-pen"></i></button>
+                    <button class="btn" onclick="App.deleteQuote('${q.id}')"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    function openQuoteModal(item = null) {
+        document.getElementById('modal-quote-title').innerHTML = item ? '<i class="fas fa-quote-right"></i> Modifier la citation' : '<i class="fas fa-quote-right"></i> Nouvelle citation';
+        document.getElementById('quote-id').value = item?.id || '';
+        document.getElementById('quote-text').value = item?.text || '';
+        document.getElementById('quote-author').value = item?.author || '';
+        document.getElementById('quote-source').value = item?.source || '';
+        document.getElementById('quote-category').value = item?.category || 'inspiration';
+        document.getElementById('quote-tags').value = item?.tags || '';
+        document.getElementById('quote-notes').value = item?.notes || '';
+        document.getElementById('modal-quote').classList.add('active');
+    }
+
+    function bindQuoteForm() {
+        const form = document.getElementById('quote-form');
+        if (form) form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('quote-id').value;
+            const data = {
+                text: document.getElementById('quote-text').value.trim(),
+                author: document.getElementById('quote-author').value.trim(),
+                source: document.getElementById('quote-source').value.trim(),
+                category: document.getElementById('quote-category').value,
+                tags: document.getElementById('quote-tags').value.trim(),
+                notes: document.getElementById('quote-notes').value.trim()
+            };
+            const result = id ? await Quotes.update(id, data) : await Quotes.add(data);
+            if (result) { toast(id ? 'Citation mise à jour' : 'Citation ajoutée', 'success'); document.getElementById('modal-quote').classList.remove('active'); await renderQuotes(); }
+        });
+        const addBtn = document.getElementById('btn-add-quote');
+        if (addBtn) addBtn.addEventListener('click', () => openQuoteModal());
+        const exportBtn = document.getElementById('btn-export-quotes');
+        if (exportBtn) exportBtn.addEventListener('click', async () => { Quotes.exportCSV(await Quotes.getAll()); toast('Citations exportées', 'success'); });
+        ['quote-filter-category'].forEach(id => { const el = document.getElementById(id); if (el) el.addEventListener('change', () => renderQuotes()); });
+    }
+
+    async function editQuote(id) { const i = await Quotes.getById(id); if (i) openQuoteModal(i); }
+    async function deleteQuote(id) {
+        confirmCallback = async () => { if (await Quotes.remove(id)) { toast('Citation supprimée', 'success'); await renderQuotes(); } };
+        document.getElementById('confirm-message').textContent = 'Supprimer cette citation ?';
+        document.getElementById('modal-confirm').classList.add('active');
+    }
+    async function toggleQuoteFavorite(id) { await Quotes.toggleFavorite(id); await renderQuotes(); }
+
+    // ===================================================================
+    //  MOODS VIEW
+    // ===================================================================
+    async function renderMoods() {
+        const stats = await Moods.getStats();
+        document.getElementById('mood-stat-total').textContent = stats.total;
+        document.getElementById('mood-stat-energy').textContent = stats.avgEnergy;
+        document.getElementById('mood-stat-stress').textContent = stats.avgStress;
+        document.getElementById('mood-stat-fav').textContent = stats.favorites;
+
+        let items = await Moods.getAll();
+        const moodF = document.getElementById('mood-filter-mood')?.value;
+        if (moodF) items = items.filter(i => i.mood === moodF);
+
+        const grid = document.getElementById('moods-grid');
+        const empty = document.getElementById('moods-empty');
+        if (!items.length) { grid.innerHTML = ''; grid.appendChild(empty); empty.style.display = ''; return; }
+        if (empty) empty.style.display = 'none';
+
+        grid.innerHTML = items.map(m => {
+            const moodInfo = Moods.getMoodInfo(m.mood);
+            const weatherInfo = Moods.getWeatherInfo(m.weather);
+            return `<div class="mood-card glass-card" style="border-left: 4px solid ${moodInfo.color}">
+                <div class="mood-card-header">
+                    <span class="mood-emoji">${moodInfo.icon}</span>
+                    <span class="badge" style="background:${moodInfo.color}20; color:${moodInfo.color}">${moodInfo.label}</span>
+                    <span class="mood-date">${new Date(m.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                </div>
+                <div class="mood-metrics">
+                    <span>⚡ Énergie: ${m.energy}/10</span>
+                    <span>🧠 Stress: ${m.stress}/10</span>
+                    <span>😴 Sommeil: ${m.sleepQuality}/10</span>
+                    ${weatherInfo ? `<span>${weatherInfo.icon} ${weatherInfo.label}</span>` : ''}
+                </div>
+                ${m.activities ? `<div class="mood-activities"><i class="fas fa-running"></i> ${m.activities}</div>` : ''}
+                ${m.emotions ? `<div class="mood-emotions"><i class="fas fa-heart"></i> ${m.emotions}</div>` : ''}
+                ${m.notes ? `<div class="mood-notes">${m.notes}</div>` : ''}
+                <div class="mood-card-actions">
+                    <button class="btn" onclick="App.toggleMoodFavorite('${m.id}')"><i class="fas fa-heart ${m.favorite ? 'text-rose' : ''}"></i></button>
+                    <button class="btn" onclick="App.editMood('${m.id}')"><i class="fas fa-pen"></i></button>
+                    <button class="btn" onclick="App.deleteMood('${m.id}')"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    function openMoodModal(item = null) {
+        document.getElementById('modal-mood-title').innerHTML = item ? '<i class="fas fa-smile"></i> Modifier l\'humeur' : '<i class="fas fa-smile"></i> Nouvel enregistrement';
+        document.getElementById('mood-id').value = item?.id || '';
+        document.getElementById('mood-date').value = item?.date || new Date().toISOString().split('T')[0];
+        document.getElementById('mood-mood').value = item?.mood || 'neutral';
+        document.getElementById('mood-energy').value = item?.energy || 5;
+        document.getElementById('mood-energy-val').textContent = item?.energy || 5;
+        document.getElementById('mood-stress').value = item?.stress || 5;
+        document.getElementById('mood-stress-val').textContent = item?.stress || 5;
+        document.getElementById('mood-sleep-quality').value = item?.sleepQuality || 5;
+        document.getElementById('mood-sleep-val').textContent = item?.sleepQuality || 5;
+        document.getElementById('mood-weather').value = item?.weather || '';
+        document.getElementById('mood-activities').value = item?.activities || '';
+        document.getElementById('mood-emotions').value = item?.emotions || '';
+        document.getElementById('mood-notes').value = item?.notes || '';
+        document.getElementById('modal-mood').classList.add('active');
+    }
+
+    function bindMoodForm() {
+        const form = document.getElementById('mood-form');
+        if (form) form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('mood-id').value;
+            const data = {
+                date: document.getElementById('mood-date').value,
+                mood: document.getElementById('mood-mood').value,
+                energy: parseInt(document.getElementById('mood-energy').value),
+                stress: parseInt(document.getElementById('mood-stress').value),
+                sleepQuality: parseInt(document.getElementById('mood-sleep-quality').value),
+                weather: document.getElementById('mood-weather').value,
+                activities: document.getElementById('mood-activities').value.trim(),
+                emotions: document.getElementById('mood-emotions').value.trim(),
+                notes: document.getElementById('mood-notes').value.trim()
+            };
+            const result = id ? await Moods.update(id, data) : await Moods.add(data);
+            if (result) { toast(id ? 'Humeur mise à jour' : 'Humeur enregistrée', 'success'); document.getElementById('modal-mood').classList.remove('active'); await renderMoods(); }
+        });
+        const addBtn = document.getElementById('btn-add-mood');
+        if (addBtn) addBtn.addEventListener('click', () => openMoodModal());
+        const exportBtn = document.getElementById('btn-export-moods');
+        if (exportBtn) exportBtn.addEventListener('click', async () => { Moods.exportCSV(await Moods.getAll()); toast('Humeurs exportées', 'success'); });
+        ['mood-filter-mood'].forEach(id => { const el = document.getElementById(id); if (el) el.addEventListener('change', () => renderMoods()); });
+        // Range slider live updates
+        const energySlider = document.getElementById('mood-energy');
+        if (energySlider) energySlider.addEventListener('input', (e) => { document.getElementById('mood-energy-val').textContent = e.target.value; });
+        const stressSlider = document.getElementById('mood-stress');
+        if (stressSlider) stressSlider.addEventListener('input', (e) => { document.getElementById('mood-stress-val').textContent = e.target.value; });
+        const sleepSlider = document.getElementById('mood-sleep-quality');
+        if (sleepSlider) sleepSlider.addEventListener('input', (e) => { document.getElementById('mood-sleep-val').textContent = e.target.value; });
+    }
+
+    async function editMood(id) { const i = await Moods.getById(id); if (i) openMoodModal(i); }
+    async function deleteMood(id) {
+        confirmCallback = async () => { if (await Moods.remove(id)) { toast('Entrée supprimée', 'success'); await renderMoods(); } };
+        document.getElementById('confirm-message').textContent = 'Supprimer cette entrée d\'humeur ?';
+        document.getElementById('modal-confirm').classList.add('active');
+    }
+    async function toggleMoodFavorite(id) { await Moods.toggleFavorite(id); await renderMoods(); }
+
+    // ===================================================================
+    //  BOOKMARKS VIEW
+    // ===================================================================
+    async function renderBookmarks() {
+        const stats = await Bookmarks.getStats();
+        document.getElementById('bookmark-stat-total').textContent = stats.total;
+        document.getElementById('bookmark-stat-read').textContent = stats.read;
+        document.getElementById('bookmark-stat-unread').textContent = stats.unread;
+        document.getElementById('bookmark-stat-fav').textContent = stats.favorites;
+
+        let items = await Bookmarks.getAll();
+        const catF = document.getElementById('bookmark-filter-category')?.value;
+        const readF = document.getElementById('bookmark-filter-read')?.value;
+        if (catF) items = items.filter(i => i.category === catF);
+        if (readF === 'read') items = items.filter(i => i.isRead);
+        if (readF === 'unread') items = items.filter(i => !i.isRead);
+
+        const grid = document.getElementById('bookmarks-grid');
+        const empty = document.getElementById('bookmarks-empty');
+        if (!items.length) { grid.innerHTML = ''; grid.appendChild(empty); empty.style.display = ''; return; }
+        if (empty) empty.style.display = 'none';
+
+        grid.innerHTML = items.map(b => {
+            const cat = Bookmarks.getCategoryInfo(b.category);
+            let domain = '';
+            try { domain = new URL(b.url).hostname; } catch(e) {}
+            return `<div class="bookmark-card glass-card" style="border-left: 4px solid ${b.isRead ? '#22C55E' : '#6366F1'}">
+                <div class="bookmark-card-header">
+                    <span class="badge">${cat.icon} ${cat.label}</span>
+                    <span class="badge" style="background:${b.isRead ? '#22C55E20' : '#6366F120'}; color:${b.isRead ? '#22C55E' : '#6366F1'}">${b.isRead ? '✅ Lu' : '📖 Non lu'}</span>
+                </div>
+                <h4 class="bookmark-title"><a href="${b.url}" target="_blank" rel="noopener">${b.title}</a></h4>
+                ${domain ? `<div class="bookmark-domain"><i class="fas fa-globe"></i> ${domain}</div>` : ''}
+                ${b.description ? `<div class="bookmark-description">${b.description}</div>` : ''}
+                ${b.tags ? `<div class="bookmark-tags">${b.tags.split(',').map(t => `<span class="tag">${t.trim()}</span>`).join('')}</div>` : ''}
+                <div class="bookmark-card-actions">
+                    <button class="btn" onclick="App.toggleBookmarkFavorite('${b.id}')"><i class="fas fa-heart ${b.favorite ? 'text-rose' : ''}"></i></button>
+                    <button class="btn" onclick="App.editBookmark('${b.id}')"><i class="fas fa-pen"></i></button>
+                    <button class="btn" onclick="App.deleteBookmark('${b.id}')"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    function openBookmarkModal(item = null) {
+        document.getElementById('modal-bookmark-title').innerHTML = item ? '<i class="fas fa-bookmark"></i> Modifier le signet' : '<i class="fas fa-bookmark"></i> Nouveau signet';
+        document.getElementById('bookmark-id').value = item?.id || '';
+        document.getElementById('bookmark-title').value = item?.title || '';
+        document.getElementById('bookmark-url').value = item?.url || '';
+        document.getElementById('bookmark-category').value = item?.category || 'general';
+        document.getElementById('bookmark-is-read').value = item?.isRead ? 'true' : 'false';
+        document.getElementById('bookmark-description').value = item?.description || '';
+        document.getElementById('bookmark-tags').value = item?.tags || '';
+        document.getElementById('bookmark-notes').value = item?.notes || '';
+        document.getElementById('modal-bookmark').classList.add('active');
+    }
+
+    function bindBookmarkForm() {
+        const form = document.getElementById('bookmark-form');
+        if (form) form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('bookmark-id').value;
+            const data = {
+                title: document.getElementById('bookmark-title').value.trim(),
+                url: document.getElementById('bookmark-url').value.trim(),
+                category: document.getElementById('bookmark-category').value,
+                isRead: document.getElementById('bookmark-is-read').value === 'true',
+                description: document.getElementById('bookmark-description').value.trim(),
+                tags: document.getElementById('bookmark-tags').value.trim(),
+                notes: document.getElementById('bookmark-notes').value.trim()
+            };
+            const result = id ? await Bookmarks.update(id, data) : await Bookmarks.add(data);
+            if (result) { toast(id ? 'Signet mis à jour' : 'Signet ajouté', 'success'); document.getElementById('modal-bookmark').classList.remove('active'); await renderBookmarks(); }
+        });
+        const addBtn = document.getElementById('btn-add-bookmark');
+        if (addBtn) addBtn.addEventListener('click', () => openBookmarkModal());
+        const exportBtn = document.getElementById('btn-export-bookmarks');
+        if (exportBtn) exportBtn.addEventListener('click', async () => { Bookmarks.exportCSV(await Bookmarks.getAll()); toast('Signets exportés', 'success'); });
+        ['bookmark-filter-category', 'bookmark-filter-read'].forEach(id => { const el = document.getElementById(id); if (el) el.addEventListener('change', () => renderBookmarks()); });
+    }
+
+    async function editBookmark(id) { const i = await Bookmarks.getById(id); if (i) openBookmarkModal(i); }
+    async function deleteBookmark(id) {
+        confirmCallback = async () => { if (await Bookmarks.remove(id)) { toast('Signet supprimé', 'success'); await renderBookmarks(); } };
+        document.getElementById('confirm-message').textContent = 'Supprimer ce signet ?';
+        document.getElementById('modal-confirm').classList.add('active');
+    }
+    async function toggleBookmarkFavorite(id) { await Bookmarks.toggleFavorite(id); await renderBookmarks(); }
+
+    // ===================================================================
+    //  JOURNALS VIEW
+    // ===================================================================
+    async function renderJournals() {
+        const stats = await Journals.getStats();
+        document.getElementById('journal-stat-total').textContent = stats.total;
+        document.getElementById('journal-stat-month').textContent = stats.thisMonth;
+        document.getElementById('journal-stat-streak').textContent = stats.streak;
+        document.getElementById('journal-stat-fav').textContent = stats.favorites;
+
+        let items = await Journals.getAll();
+        const moodF = document.getElementById('journal-filter-mood')?.value;
+        if (moodF) items = items.filter(i => i.mood === moodF);
+
+        const grid = document.getElementById('journals-grid');
+        const empty = document.getElementById('journals-empty');
+        if (!items.length) { grid.innerHTML = ''; grid.appendChild(empty); empty.style.display = ''; return; }
+        if (empty) empty.style.display = 'none';
+
+        grid.innerHTML = items.map(j => {
+            const moodInfo = Journals.getMoodInfo(j.mood);
+            const weatherInfo = Journals.getWeatherInfo(j.weather);
+            const preview = j.content.length > 150 ? j.content.substring(0, 150) + '...' : j.content;
+            return `<div class="journal-card glass-card" style="border-left: 4px solid var(--primary)">
+                <div class="journal-card-header">
+                    <span class="journal-date">${new Date(j.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                    <div>
+                        <span class="mood-emoji">${moodInfo.icon}</span>
+                        ${weatherInfo ? `<span>${weatherInfo.icon}</span>` : ''}
+                    </div>
+                </div>
+                ${j.title ? `<h4 class="journal-title">${j.title}</h4>` : ''}
+                <div class="journal-content">${preview}</div>
+                ${j.tags ? `<div class="journal-tags">${j.tags.split(',').map(t => `<span class="tag">${t.trim()}</span>`).join('')}</div>` : ''}
+                <div class="journal-card-actions">
+                    <button class="btn" onclick="App.toggleJournalFavorite('${j.id}')"><i class="fas fa-heart ${j.favorite ? 'text-rose' : ''}"></i></button>
+                    <button class="btn" onclick="App.editJournal('${j.id}')"><i class="fas fa-pen"></i></button>
+                    <button class="btn" onclick="App.deleteJournal('${j.id}')"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    function openJournalModal(item = null) {
+        document.getElementById('modal-journal-title').innerHTML = item ? '<i class="fas fa-book-open"></i> Modifier l\'entrée' : '<i class="fas fa-book-open"></i> Nouvelle entrée';
+        document.getElementById('journal-id').value = item?.id || '';
+        document.getElementById('journal-title').value = item?.title || '';
+        document.getElementById('journal-date').value = item?.date || new Date().toISOString().split('T')[0];
+        document.getElementById('journal-content').value = item?.content || '';
+        document.getElementById('journal-mood').value = item?.mood || 'neutral';
+        document.getElementById('journal-weather').value = item?.weather || '';
+        document.getElementById('journal-tags').value = item?.tags || '';
+        document.getElementById('journal-notes').value = item?.notes || '';
+        document.getElementById('modal-journal').classList.add('active');
+    }
+
+    function bindJournalForm() {
+        const form = document.getElementById('journal-form');
+        if (form) form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('journal-id').value;
+            const data = {
+                title: document.getElementById('journal-title').value.trim(),
+                date: document.getElementById('journal-date').value,
+                content: document.getElementById('journal-content').value.trim(),
+                mood: document.getElementById('journal-mood').value,
+                weather: document.getElementById('journal-weather').value,
+                tags: document.getElementById('journal-tags').value.trim(),
+                notes: document.getElementById('journal-notes').value.trim()
+            };
+            const result = id ? await Journals.update(id, data) : await Journals.add(data);
+            if (result) { toast(id ? 'Entrée mise à jour' : 'Entrée ajoutée', 'success'); document.getElementById('modal-journal').classList.remove('active'); await renderJournals(); }
+        });
+        const addBtn = document.getElementById('btn-add-journal');
+        if (addBtn) addBtn.addEventListener('click', () => openJournalModal());
+        const exportBtn = document.getElementById('btn-export-journals');
+        if (exportBtn) exportBtn.addEventListener('click', async () => { Journals.exportCSV(await Journals.getAll()); toast('Journal exporté', 'success'); });
+        ['journal-filter-mood'].forEach(id => { const el = document.getElementById(id); if (el) el.addEventListener('change', () => renderJournals()); });
+    }
+
+    async function editJournal(id) { const i = await Journals.getById(id); if (i) openJournalModal(i); }
+    async function deleteJournal(id) {
+        confirmCallback = async () => { if (await Journals.remove(id)) { toast('Entrée supprimée', 'success'); await renderJournals(); } };
+        document.getElementById('confirm-message').textContent = 'Supprimer cette entrée de journal ?';
+        document.getElementById('modal-confirm').classList.add('active');
+    }
+    async function toggleJournalFavorite(id) { await Journals.toggleFavorite(id); await renderJournals(); }
+
+    // ===================================================================
+    //  CHALLENGES VIEW
+    // ===================================================================
+    async function renderChallenges() {
+        const stats = await Challenges.getStats();
+        document.getElementById('challenge-stat-total').textContent = stats.total;
+        document.getElementById('challenge-stat-active').textContent = stats.active;
+        document.getElementById('challenge-stat-completed').textContent = stats.completed;
+        document.getElementById('challenge-stat-progress').textContent = stats.avgProgress + '%';
+
+        let items = await Challenges.getAll();
+        const statusF = document.getElementById('challenge-filter-status')?.value;
+        const catF = document.getElementById('challenge-filter-category')?.value;
+        if (statusF) items = items.filter(i => i.status === statusF);
+        if (catF) items = items.filter(i => i.category === catF);
+
+        const grid = document.getElementById('challenges-grid');
+        const empty = document.getElementById('challenges-empty');
+        if (!items.length) { grid.innerHTML = ''; grid.appendChild(empty); empty.style.display = ''; return; }
+        if (empty) empty.style.display = 'none';
+
+        grid.innerHTML = items.map(c => {
+            const cat = Challenges.getCategoryInfo(c.category);
+            const st = Challenges.getStatusInfo(c.status);
+            const diff = Challenges.getDifficultyInfo(c.difficulty);
+            const daysLeft = c.endDate ? Math.ceil((new Date(c.endDate) - new Date()) / 86400000) : null;
+            return `<div class="challenge-card glass-card" style="border-left: 4px solid ${st.color}">
+                <div class="challenge-card-header">
+                    <span class="badge">${cat.icon} ${cat.label}</span>
+                    <span class="badge" style="background:${st.color}20; color:${st.color}">${st.icon} ${st.label}</span>
+                </div>
+                <h4 class="challenge-title">${c.title}</h4>
+                ${c.description ? `<div class="challenge-description">${c.description}</div>` : ''}
+                <div class="challenge-progress-bar">
+                    <div class="challenge-progress-fill" style="width:${c.progress}%; background:${st.color}"></div>
+                    <span class="challenge-progress-label">${c.progress}%</span>
+                </div>
+                <div class="challenge-meta">
+                    <span>${diff.icon} ${diff.label}</span>
+                    ${c.startDate ? `<span><i class="fas fa-play"></i> ${new Date(c.startDate).toLocaleDateString('fr-FR')}</span>` : ''}
+                    ${daysLeft !== null ? `<span><i class="fas fa-hourglass-half"></i> ${daysLeft > 0 ? daysLeft + 'j restants' : 'Terminé'}</span>` : ''}
+                </div>
+                ${c.target ? `<div class="challenge-target"><i class="fas fa-bullseye"></i> ${c.target}</div>` : ''}
+                ${c.reward ? `<div class="challenge-reward"><i class="fas fa-gift"></i> ${c.reward}</div>` : ''}
+                ${c.tags ? `<div class="challenge-tags">${c.tags.split(',').map(t => `<span class="tag">${t.trim()}</span>`).join('')}</div>` : ''}
+                <div class="challenge-card-actions">
+                    <button class="btn" onclick="App.toggleChallengeFavorite('${c.id}')"><i class="fas fa-heart ${c.favorite ? 'text-rose' : ''}"></i></button>
+                    <button class="btn" onclick="App.editChallenge('${c.id}')"><i class="fas fa-pen"></i></button>
+                    <button class="btn" onclick="App.deleteChallenge('${c.id}')"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    function openChallengeModal(item = null) {
+        document.getElementById('modal-challenge-title').innerHTML = item ? '<i class="fas fa-trophy"></i> Modifier le défi' : '<i class="fas fa-trophy"></i> Nouveau défi';
+        document.getElementById('challenge-id').value = item?.id || '';
+        document.getElementById('challenge-title').value = item?.title || '';
+        document.getElementById('challenge-category').value = item?.category || 'personal';
+        document.getElementById('challenge-status').value = item?.status || 'active';
+        document.getElementById('challenge-difficulty').value = item?.difficulty || 'medium';
+        document.getElementById('challenge-start-date').value = item?.startDate || new Date().toISOString().split('T')[0];
+        document.getElementById('challenge-end-date').value = item?.endDate || '';
+        document.getElementById('challenge-progress').value = item?.progress || 0;
+        document.getElementById('challenge-progress-val').textContent = (item?.progress || 0) + '%';
+        document.getElementById('challenge-description').value = item?.description || '';
+        document.getElementById('challenge-target').value = item?.target || '';
+        document.getElementById('challenge-reward').value = item?.reward || '';
+        document.getElementById('challenge-tags').value = item?.tags || '';
+        document.getElementById('challenge-notes').value = item?.notes || '';
+        document.getElementById('modal-challenge').classList.add('active');
+    }
+
+    function bindChallengeForm() {
+        const form = document.getElementById('challenge-form');
+        if (form) form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('challenge-id').value;
+            const data = {
+                title: document.getElementById('challenge-title').value.trim(),
+                category: document.getElementById('challenge-category').value,
+                status: document.getElementById('challenge-status').value,
+                difficulty: document.getElementById('challenge-difficulty').value,
+                startDate: document.getElementById('challenge-start-date').value,
+                endDate: document.getElementById('challenge-end-date').value,
+                progress: parseInt(document.getElementById('challenge-progress').value),
+                description: document.getElementById('challenge-description').value.trim(),
+                target: document.getElementById('challenge-target').value.trim(),
+                reward: document.getElementById('challenge-reward').value.trim(),
+                tags: document.getElementById('challenge-tags').value.trim(),
+                notes: document.getElementById('challenge-notes').value.trim()
+            };
+            const result = id ? await Challenges.update(id, data) : await Challenges.add(data);
+            if (result) { toast(id ? 'Défi mis à jour' : 'Défi ajouté', 'success'); document.getElementById('modal-challenge').classList.remove('active'); await renderChallenges(); }
+        });
+        const addBtn = document.getElementById('btn-add-challenge');
+        if (addBtn) addBtn.addEventListener('click', () => openChallengeModal());
+        const exportBtn = document.getElementById('btn-export-challenges');
+        if (exportBtn) exportBtn.addEventListener('click', async () => { Challenges.exportCSV(await Challenges.getAll()); toast('Défis exportés', 'success'); });
+        ['challenge-filter-status', 'challenge-filter-category'].forEach(id => { const el = document.getElementById(id); if (el) el.addEventListener('change', () => renderChallenges()); });
+        // Range slider live updates
+        const progressSlider = document.getElementById('challenge-progress');
+        if (progressSlider) progressSlider.addEventListener('input', (e) => { document.getElementById('challenge-progress-val').textContent = e.target.value + '%'; });
+    }
+
+    async function editChallenge(id) { const i = await Challenges.getById(id); if (i) openChallengeModal(i); }
+    async function deleteChallenge(id) {
+        confirmCallback = async () => { if (await Challenges.remove(id)) { toast('Défi supprimé', 'success'); await renderChallenges(); } };
+        document.getElementById('confirm-message').textContent = 'Supprimer ce défi ?';
+        document.getElementById('modal-confirm').classList.add('active');
+    }
+    async function toggleChallengeFavorite(id) { await Challenges.toggleFavorite(id); await renderChallenges(); }
+
+    // ===================================================================
     //  PROJECTS VIEW
     // ===================================================================
     async function renderProjects() {
@@ -8343,6 +8865,21 @@ const App = (() => {
         editIdea,
         deleteIdea,
         toggleIdeaFavorite,
+        editQuote,
+        deleteQuote,
+        toggleQuoteFavorite,
+        editMood,
+        deleteMood,
+        toggleMoodFavorite,
+        editBookmark,
+        deleteBookmark,
+        toggleBookmarkFavorite,
+        editJournal,
+        deleteJournal,
+        toggleJournalFavorite,
+        editChallenge,
+        deleteChallenge,
+        toggleChallengeFavorite,
         editProject,
         deleteProject,
         toggleProjectFavorite,

@@ -249,7 +249,7 @@
                 <button class="nav-group-header" data-toggle="wellbeing">
                     <div class="nav-group-dot" style="background:#06B6D4"></div>
                     <span class="nav-group-label">Bien-être</span>
-                    <span class="nav-group-count">5</span>
+                    <span class="nav-group-count">7</span>
                     <i class="nav-group-chevron fas fa-chevron-down"></i>
                 </button>
                 <div class="nav-group-items">
@@ -279,6 +279,16 @@
                             <span>Médicaments</span>
                             <div class="nav-active-dot"></div>
                         </li>
+                        <li class="nav-item" data-view="moods">
+                            <div class="nav-icon-wrap"><i class="fas fa-smile"></i></div>
+                            <span>Humeur</span>
+                            <div class="nav-active-dot"></div>
+                        </li>
+                        <li class="nav-item" data-view="journals">
+                            <div class="nav-icon-wrap"><i class="fas fa-book-open"></i></div>
+                            <span>Journal intime</span>
+                            <div class="nav-active-dot"></div>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -288,7 +298,7 @@
                 <button class="nav-group-header" data-toggle="productivity">
                     <div class="nav-group-dot" style="background:#A78BFA"></div>
                     <span class="nav-group-label">Productivité</span>
-                    <span class="nav-group-count">5</span>
+                    <span class="nav-group-count">8</span>
                     <i class="nav-group-chevron fas fa-chevron-down"></i>
                 </button>
                 <div class="nav-group-items">
@@ -316,6 +326,21 @@
                         <li class="nav-item" data-view="events">
                             <div class="nav-icon-wrap"><i class="fas fa-calendar-alt"></i></div>
                             <span>Événements</span>
+                            <div class="nav-active-dot"></div>
+                        </li>
+                        <li class="nav-item" data-view="quotes">
+                            <div class="nav-icon-wrap"><i class="fas fa-quote-right"></i></div>
+                            <span>Citations</span>
+                            <div class="nav-active-dot"></div>
+                        </li>
+                        <li class="nav-item" data-view="bookmarks">
+                            <div class="nav-icon-wrap"><i class="fas fa-bookmark"></i></div>
+                            <span>Signets</span>
+                            <div class="nav-active-dot"></div>
+                        </li>
+                        <li class="nav-item" data-view="challenges">
+                            <div class="nav-icon-wrap"><i class="fas fa-trophy"></i></div>
+                            <span>Défis</span>
                             <div class="nav-active-dot"></div>
                         </li>
                     </ul>
@@ -2067,6 +2092,123 @@
             <div id="gratitude-list" class="gratitude-list"></div>
         </section>
 
+        <!-- ==================== QUOTES VIEW ==================== -->
+        <section id="view-quotes" class="view">
+            <div class="view-toolbar">
+                <h2>Citations & Inspirations</h2>
+                <div class="toolbar-actions">
+                    <button id="btn-add-quote" class="btn btn-primary btn-glow"><span class="btn-content"><i class="fas fa-plus"></i> Nouvelle citation</span><span class="btn-shimmer"></span></button>
+                    <button id="btn-export-quotes" class="btn btn-outline"><i class="fas fa-file-csv"></i> Exporter</button>
+                </div>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card"><div class="stat-card-bg"></div><div class="stat-icon"><i class="fas fa-quote-right"></i></div><div class="stat-info"><span class="stat-label">Total citations</span><span class="stat-value" id="quote-stat-total">0</span></div></div>
+                <div class="stat-card"><div class="stat-card-bg"></div><div class="stat-icon"><i class="fas fa-user-edit"></i></div><div class="stat-info"><span class="stat-label">Auteurs</span><span class="stat-value" id="quote-stat-authors">0</span></div></div>
+                <div class="stat-card"><div class="stat-card-bg"></div><div class="stat-icon"><i class="fas fa-folder"></i></div><div class="stat-info"><span class="stat-label">Catégories</span><span class="stat-value" id="quote-stat-categories">0</span></div></div>
+                <div class="stat-card"><div class="stat-card-bg"></div><div class="stat-icon"><i class="fas fa-heart"></i></div><div class="stat-info"><span class="stat-label">Favoris</span><span class="stat-value" id="quote-stat-fav">0</span></div></div>
+            </div>
+            <div class="card glass-card"><div class="card-body filters-bar">
+                <div class="form-group"><label for="quote-filter-category">Catégorie</label><select id="quote-filter-category"><option value="">Toutes</option><option value="inspiration">✨ Inspiration</option><option value="motivation">🔥 Motivation</option><option value="wisdom">🦉 Sagesse</option><option value="humor">😄 Humour</option><option value="love">❤️ Amour</option><option value="philosophy">🤔 Philosophie</option><option value="science">🔬 Science</option><option value="literature">📚 Littérature</option><option value="cinema">🎬 Cinéma</option></select></div>
+            </div></div>
+            <div class="quotes-grid" id="quotes-grid">
+                <p class="empty-state" id="quotes-empty"><span class="empty-state-icon"><i class="fas fa-quote-right"></i></span>Aucune citation. Commencez à collecter l'inspiration !</p>
+            </div>
+        </section>
+
+        <!-- ==================== MOODS VIEW ==================== -->
+        <section id="view-moods" class="view">
+            <div class="view-toolbar">
+                <h2>Suivi d'Humeur</h2>
+                <div class="toolbar-actions">
+                    <button id="btn-add-mood" class="btn btn-primary btn-glow"><span class="btn-content"><i class="fas fa-plus"></i> Nouvel enregistrement</span><span class="btn-shimmer"></span></button>
+                    <button id="btn-export-moods" class="btn btn-outline"><i class="fas fa-file-csv"></i> Exporter</button>
+                </div>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card"><div class="stat-card-bg"></div><div class="stat-icon"><i class="fas fa-smile"></i></div><div class="stat-info"><span class="stat-label">Total entrées</span><span class="stat-value" id="mood-stat-total">0</span></div></div>
+                <div class="stat-card"><div class="stat-card-bg"></div><div class="stat-icon"><i class="fas fa-bolt"></i></div><div class="stat-info"><span class="stat-label">Énergie moy.</span><span class="stat-value" id="mood-stat-energy">0</span></div></div>
+                <div class="stat-card"><div class="stat-card-bg"></div><div class="stat-icon"><i class="fas fa-brain"></i></div><div class="stat-info"><span class="stat-label">Stress moy.</span><span class="stat-value" id="mood-stat-stress">0</span></div></div>
+                <div class="stat-card"><div class="stat-card-bg"></div><div class="stat-icon"><i class="fas fa-heart"></i></div><div class="stat-info"><span class="stat-label">Favoris</span><span class="stat-value" id="mood-stat-fav">0</span></div></div>
+            </div>
+            <div class="card glass-card"><div class="card-body filters-bar">
+                <div class="form-group"><label for="mood-filter-mood">Humeur</label><select id="mood-filter-mood"><option value="">Toutes</option><option value="amazing">🤩 Incroyable</option><option value="happy">😊 Heureux</option><option value="good">🙂 Bien</option><option value="neutral">😐 Neutre</option><option value="tired">😴 Fatigué</option><option value="sad">😢 Triste</option><option value="stressed">😰 Stressé</option><option value="angry">😠 En colère</option></select></div>
+            </div></div>
+            <div class="moods-grid" id="moods-grid">
+                <p class="empty-state" id="moods-empty"><span class="empty-state-icon"><i class="fas fa-smile"></i></span>Aucune entrée d'humeur. Comment vous sentez-vous aujourd'hui ?</p>
+            </div>
+        </section>
+
+        <!-- ==================== BOOKMARKS VIEW ==================== -->
+        <section id="view-bookmarks" class="view">
+            <div class="view-toolbar">
+                <h2>Signets & Liens</h2>
+                <div class="toolbar-actions">
+                    <button id="btn-add-bookmark" class="btn btn-primary btn-glow"><span class="btn-content"><i class="fas fa-plus"></i> Nouveau signet</span><span class="btn-shimmer"></span></button>
+                    <button id="btn-export-bookmarks" class="btn btn-outline"><i class="fas fa-file-csv"></i> Exporter</button>
+                </div>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card"><div class="stat-card-bg"></div><div class="stat-icon"><i class="fas fa-bookmark"></i></div><div class="stat-info"><span class="stat-label">Total signets</span><span class="stat-value" id="bookmark-stat-total">0</span></div></div>
+                <div class="stat-card"><div class="stat-card-bg"></div><div class="stat-icon"><i class="fas fa-check-circle"></i></div><div class="stat-info"><span class="stat-label">Lus</span><span class="stat-value" id="bookmark-stat-read">0</span></div></div>
+                <div class="stat-card"><div class="stat-card-bg"></div><div class="stat-icon"><i class="fas fa-clock"></i></div><div class="stat-info"><span class="stat-label">Non lus</span><span class="stat-value" id="bookmark-stat-unread">0</span></div></div>
+                <div class="stat-card"><div class="stat-card-bg"></div><div class="stat-icon"><i class="fas fa-heart"></i></div><div class="stat-info"><span class="stat-label">Favoris</span><span class="stat-value" id="bookmark-stat-fav">0</span></div></div>
+            </div>
+            <div class="card glass-card"><div class="card-body filters-bar">
+                <div class="form-group"><label for="bookmark-filter-category">Catégorie</label><select id="bookmark-filter-category"><option value="">Toutes</option><option value="general">🔗 Général</option><option value="tech">💻 Tech</option><option value="news">📰 Actualités</option><option value="tutorial">📖 Tutoriel</option><option value="tool">🛠️ Outil</option><option value="reference">📋 Référence</option><option value="video">🎥 Vidéo</option><option value="social">👥 Social</option><option value="shopping">🛒 Shopping</option></select></div>
+                <div class="form-group"><label for="bookmark-filter-read">Statut</label><select id="bookmark-filter-read"><option value="">Tous</option><option value="read">Lus</option><option value="unread">Non lus</option></select></div>
+            </div></div>
+            <div class="bookmarks-grid" id="bookmarks-grid">
+                <p class="empty-state" id="bookmarks-empty"><span class="empty-state-icon"><i class="fas fa-bookmark"></i></span>Aucun signet. Sauvegardez vos liens préférés !</p>
+            </div>
+        </section>
+
+        <!-- ==================== JOURNALS VIEW ==================== -->
+        <section id="view-journals" class="view">
+            <div class="view-toolbar">
+                <h2>Journal Intime</h2>
+                <div class="toolbar-actions">
+                    <button id="btn-add-journal" class="btn btn-primary btn-glow"><span class="btn-content"><i class="fas fa-plus"></i> Nouvelle entrée</span><span class="btn-shimmer"></span></button>
+                    <button id="btn-export-journals" class="btn btn-outline"><i class="fas fa-file-csv"></i> Exporter</button>
+                </div>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card"><div class="stat-card-bg"></div><div class="stat-icon"><i class="fas fa-book-open"></i></div><div class="stat-info"><span class="stat-label">Total entrées</span><span class="stat-value" id="journal-stat-total">0</span></div></div>
+                <div class="stat-card"><div class="stat-card-bg"></div><div class="stat-icon"><i class="fas fa-calendar-check"></i></div><div class="stat-info"><span class="stat-label">Ce mois</span><span class="stat-value" id="journal-stat-month">0</span></div></div>
+                <div class="stat-card"><div class="stat-card-bg"></div><div class="stat-icon"><i class="fas fa-fire"></i></div><div class="stat-info"><span class="stat-label">Série</span><span class="stat-value" id="journal-stat-streak">0</span></div></div>
+                <div class="stat-card"><div class="stat-card-bg"></div><div class="stat-icon"><i class="fas fa-heart"></i></div><div class="stat-info"><span class="stat-label">Favoris</span><span class="stat-value" id="journal-stat-fav">0</span></div></div>
+            </div>
+            <div class="card glass-card"><div class="card-body filters-bar">
+                <div class="form-group"><label for="journal-filter-mood">Humeur</label><select id="journal-filter-mood"><option value="">Toutes</option><option value="amazing">🤩 Incroyable</option><option value="happy">😊 Heureux</option><option value="good">🙂 Bien</option><option value="neutral">😐 Neutre</option><option value="tired">😴 Fatigué</option><option value="sad">😢 Triste</option><option value="anxious">😰 Anxieux</option></select></div>
+            </div></div>
+            <div class="journals-grid" id="journals-grid">
+                <p class="empty-state" id="journals-empty"><span class="empty-state-icon"><i class="fas fa-book-open"></i></span>Aucune entrée de journal. Exprimez vos pensées !</p>
+            </div>
+        </section>
+
+        <!-- ==================== CHALLENGES VIEW ==================== -->
+        <section id="view-challenges" class="view">
+            <div class="view-toolbar">
+                <h2>Défis Personnels</h2>
+                <div class="toolbar-actions">
+                    <button id="btn-add-challenge" class="btn btn-primary btn-glow"><span class="btn-content"><i class="fas fa-plus"></i> Nouveau défi</span><span class="btn-shimmer"></span></button>
+                    <button id="btn-export-challenges" class="btn btn-outline"><i class="fas fa-file-csv"></i> Exporter</button>
+                </div>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card"><div class="stat-card-bg"></div><div class="stat-icon"><i class="fas fa-trophy"></i></div><div class="stat-info"><span class="stat-label">Total défis</span><span class="stat-value" id="challenge-stat-total">0</span></div></div>
+                <div class="stat-card"><div class="stat-card-bg"></div><div class="stat-icon"><i class="fas fa-fire"></i></div><div class="stat-info"><span class="stat-label">En cours</span><span class="stat-value" id="challenge-stat-active">0</span></div></div>
+                <div class="stat-card"><div class="stat-card-bg"></div><div class="stat-icon"><i class="fas fa-check-circle"></i></div><div class="stat-info"><span class="stat-label">Complétés</span><span class="stat-value" id="challenge-stat-completed">0</span></div></div>
+                <div class="stat-card"><div class="stat-card-bg"></div><div class="stat-icon"><i class="fas fa-chart-line"></i></div><div class="stat-info"><span class="stat-label">Progression moy.</span><span class="stat-value" id="challenge-stat-progress">0%</span></div></div>
+            </div>
+            <div class="card glass-card"><div class="card-body filters-bar">
+                <div class="form-group"><label for="challenge-filter-status">Statut</label><select id="challenge-filter-status"><option value="">Tous</option><option value="active">🔥 En cours</option><option value="completed">✅ Complété</option><option value="paused">⏸️ En pause</option><option value="abandoned">❌ Abandonné</option></select></div>
+                <div class="form-group"><label for="challenge-filter-category">Catégorie</label><select id="challenge-filter-category"><option value="">Toutes</option><option value="personal">👤 Personnel</option><option value="fitness">💪 Fitness</option><option value="health">🏥 Santé</option><option value="learning">📚 Apprentissage</option><option value="creative">🎨 Créatif</option><option value="social">👥 Social</option><option value="financial">💰 Financier</option><option value="career">💼 Carrière</option></select></div>
+            </div></div>
+            <div class="challenges-grid" id="challenges-grid">
+                <p class="empty-state" id="challenges-empty"><span class="empty-state-icon"><i class="fas fa-trophy"></i></span>Aucun défi. Lancez-vous un challenge !</p>
+            </div>
+        </section>
+
         <!-- ==================== SETTINGS VIEW ==================== -->
         <section id="view-settings" class="view">
             <div class="view-toolbar">
@@ -2313,6 +2455,60 @@
             <div class="form-group"><label for="habit-color"><i class="fas fa-palette"></i> Couleur</label><input type="color" id="habit-color" value="#22C55E"></div>
         </div>
     </div><div class="modal-footer"><button type="button" class="btn btn-outline" data-close="modal-habit">Annuler</button><button type="submit" class="btn btn-primary btn-glow"><span class="btn-content"><i class="fas fa-save"></i> Enregistrer</span><span class="btn-shimmer"></span></button></div></form></div></div>
+
+    <!-- Quote Modal -->
+    <div class="modal-overlay" id="modal-quote"><div class="modal"><div class="modal-header"><h3 id="modal-quote-title"><i class="fas fa-quote-right"></i> Nouvelle citation</h3><button class="modal-close" data-close="modal-quote"><i class="fas fa-times"></i></button></div><form id="quote-form"><div class="modal-body">
+        <input type="hidden" id="quote-id">
+        <div class="form-group"><label for="quote-text"><i class="fas fa-quote-left"></i> Citation *</label><textarea id="quote-text" rows="3" required placeholder="La citation..."></textarea></div>
+        <div class="form-row"><div class="form-group"><label for="quote-author"><i class="fas fa-user-edit"></i> Auteur</label><input type="text" id="quote-author" placeholder="Auteur de la citation"></div><div class="form-group"><label for="quote-source"><i class="fas fa-book"></i> Source</label><input type="text" id="quote-source" placeholder="Livre, film, discours..."></div></div>
+        <div class="form-row"><div class="form-group"><label for="quote-category"><i class="fas fa-folder"></i> Catégorie</label><select id="quote-category"><option value="inspiration">✨ Inspiration</option><option value="motivation">🔥 Motivation</option><option value="wisdom">🦉 Sagesse</option><option value="humor">😄 Humour</option><option value="love">❤️ Amour</option><option value="philosophy">🤔 Philosophie</option><option value="science">🔬 Science</option><option value="literature">📚 Littérature</option><option value="cinema">🎬 Cinéma</option><option value="other">📌 Autre</option></select></div></div>
+        <div class="form-group"><label for="quote-tags"><i class="fas fa-tags"></i> Tags</label><input type="text" id="quote-tags" placeholder="sagesse, vie, bonheur..."></div>
+        <div class="form-group"><label for="quote-notes"><i class="fas fa-sticky-note"></i> Notes</label><textarea id="quote-notes" rows="2" placeholder="Notes personnelles..."></textarea></div>
+    </div><div class="modal-footer"><button type="button" class="btn btn-outline" data-close="modal-quote">Annuler</button><button type="submit" class="btn btn-primary btn-glow"><span class="btn-content"><i class="fas fa-save"></i> Enregistrer</span><span class="btn-shimmer"></span></button></div></form></div></div>
+
+    <!-- Mood Modal -->
+    <div class="modal-overlay" id="modal-mood"><div class="modal"><div class="modal-header"><h3 id="modal-mood-title"><i class="fas fa-smile"></i> Nouvel enregistrement</h3><button class="modal-close" data-close="modal-mood"><i class="fas fa-times"></i></button></div><form id="mood-form"><div class="modal-body">
+        <input type="hidden" id="mood-id">
+        <div class="form-row"><div class="form-group"><label for="mood-date"><i class="fas fa-calendar"></i> Date *</label><input type="date" id="mood-date" required></div><div class="form-group"><label for="mood-mood"><i class="fas fa-smile"></i> Humeur *</label><select id="mood-mood"><option value="amazing">🤩 Incroyable</option><option value="happy">😊 Heureux</option><option value="good">🙂 Bien</option><option value="neutral" selected>😐 Neutre</option><option value="tired">😴 Fatigué</option><option value="sad">😢 Triste</option><option value="stressed">😰 Stressé</option><option value="angry">😠 En colère</option></select></div></div>
+        <div class="form-row"><div class="form-group"><label for="mood-energy"><i class="fas fa-bolt"></i> Énergie (1-10)</label><input type="range" id="mood-energy" min="1" max="10" value="5"><span id="mood-energy-val">5</span></div><div class="form-group"><label for="mood-stress"><i class="fas fa-brain"></i> Stress (1-10)</label><input type="range" id="mood-stress" min="1" max="10" value="5"><span id="mood-stress-val">5</span></div></div>
+        <div class="form-row"><div class="form-group"><label for="mood-sleep-quality"><i class="fas fa-bed"></i> Qualité sommeil (1-10)</label><input type="range" id="mood-sleep-quality" min="1" max="10" value="5"><span id="mood-sleep-val">5</span></div><div class="form-group"><label for="mood-weather"><i class="fas fa-cloud-sun"></i> Météo</label><select id="mood-weather"><option value="">— Aucune —</option><option value="sunny">☀️ Ensoleillé</option><option value="cloudy">☁️ Nuageux</option><option value="rainy">🌧️ Pluvieux</option><option value="stormy">⛈️ Orageux</option><option value="snowy">❄️ Neigeux</option><option value="windy">💨 Venteux</option></select></div></div>
+        <div class="form-group"><label for="mood-activities"><i class="fas fa-running"></i> Activités</label><input type="text" id="mood-activities" placeholder="sport, lecture, travail..."></div>
+        <div class="form-group"><label for="mood-emotions"><i class="fas fa-heart"></i> Émotions</label><input type="text" id="mood-emotions" placeholder="joie, gratitude, sérénité..."></div>
+        <div class="form-group"><label for="mood-notes"><i class="fas fa-sticky-note"></i> Notes</label><textarea id="mood-notes" rows="2" placeholder="Comment s'est passée votre journée ?"></textarea></div>
+    </div><div class="modal-footer"><button type="button" class="btn btn-outline" data-close="modal-mood">Annuler</button><button type="submit" class="btn btn-primary btn-glow"><span class="btn-content"><i class="fas fa-save"></i> Enregistrer</span><span class="btn-shimmer"></span></button></div></form></div></div>
+
+    <!-- Bookmark Modal -->
+    <div class="modal-overlay" id="modal-bookmark"><div class="modal"><div class="modal-header"><h3 id="modal-bookmark-title"><i class="fas fa-bookmark"></i> Nouveau signet</h3><button class="modal-close" data-close="modal-bookmark"><i class="fas fa-times"></i></button></div><form id="bookmark-form"><div class="modal-body">
+        <input type="hidden" id="bookmark-id">
+        <div class="form-row"><div class="form-group"><label for="bookmark-title"><i class="fas fa-heading"></i> Titre *</label><input type="text" id="bookmark-title" required placeholder="Titre du lien"></div><div class="form-group"><label for="bookmark-url"><i class="fas fa-link"></i> URL *</label><input type="url" id="bookmark-url" required placeholder="https://..."></div></div>
+        <div class="form-row"><div class="form-group"><label for="bookmark-category"><i class="fas fa-folder"></i> Catégorie</label><select id="bookmark-category"><option value="general">🔗 Général</option><option value="tech">💻 Tech</option><option value="news">📰 Actualités</option><option value="tutorial">📖 Tutoriel</option><option value="tool">🛠️ Outil</option><option value="reference">📋 Référence</option><option value="video">🎥 Vidéo</option><option value="social">👥 Social</option><option value="shopping">🛒 Shopping</option><option value="other">📌 Autre</option></select></div><div class="form-group"><label for="bookmark-is-read"><i class="fas fa-check"></i> Statut</label><select id="bookmark-is-read"><option value="false">Non lu</option><option value="true">Lu</option></select></div></div>
+        <div class="form-group"><label for="bookmark-description"><i class="fas fa-align-left"></i> Description</label><textarea id="bookmark-description" rows="2" placeholder="Description du lien..."></textarea></div>
+        <div class="form-group"><label for="bookmark-tags"><i class="fas fa-tags"></i> Tags</label><input type="text" id="bookmark-tags" placeholder="dev, article, référence..."></div>
+        <div class="form-group"><label for="bookmark-notes"><i class="fas fa-sticky-note"></i> Notes</label><textarea id="bookmark-notes" rows="2" placeholder="Notes personnelles..."></textarea></div>
+    </div><div class="modal-footer"><button type="button" class="btn btn-outline" data-close="modal-bookmark">Annuler</button><button type="submit" class="btn btn-primary btn-glow"><span class="btn-content"><i class="fas fa-save"></i> Enregistrer</span><span class="btn-shimmer"></span></button></div></form></div></div>
+
+    <!-- Journal Modal -->
+    <div class="modal-overlay" id="modal-journal"><div class="modal"><div class="modal-header"><h3 id="modal-journal-title"><i class="fas fa-book-open"></i> Nouvelle entrée</h3><button class="modal-close" data-close="modal-journal"><i class="fas fa-times"></i></button></div><form id="journal-form"><div class="modal-body">
+        <input type="hidden" id="journal-id">
+        <div class="form-row"><div class="form-group"><label for="journal-title"><i class="fas fa-heading"></i> Titre</label><input type="text" id="journal-title" placeholder="Titre de l'entrée (optionnel)"></div><div class="form-group"><label for="journal-date"><i class="fas fa-calendar"></i> Date *</label><input type="date" id="journal-date" required></div></div>
+        <div class="form-group"><label for="journal-content"><i class="fas fa-pen-fancy"></i> Contenu *</label><textarea id="journal-content" rows="6" required placeholder="Écrivez vos pensées, réflexions, souvenirs..."></textarea></div>
+        <div class="form-row"><div class="form-group"><label for="journal-mood"><i class="fas fa-smile"></i> Humeur</label><select id="journal-mood"><option value="amazing">🤩 Incroyable</option><option value="happy">😊 Heureux</option><option value="good">🙂 Bien</option><option value="neutral" selected>😐 Neutre</option><option value="tired">😴 Fatigué</option><option value="sad">😢 Triste</option><option value="anxious">😰 Anxieux</option></select></div><div class="form-group"><label for="journal-weather"><i class="fas fa-cloud-sun"></i> Météo</label><select id="journal-weather"><option value="">— Aucune —</option><option value="sunny">☀️ Ensoleillé</option><option value="cloudy">☁️ Nuageux</option><option value="rainy">🌧️ Pluvieux</option><option value="stormy">⛈️ Orageux</option><option value="snowy">❄️ Neigeux</option></select></div></div>
+        <div class="form-group"><label for="journal-tags"><i class="fas fa-tags"></i> Tags</label><input type="text" id="journal-tags" placeholder="réflexion, gratitude, souvenir..."></div>
+        <div class="form-group"><label for="journal-notes"><i class="fas fa-sticky-note"></i> Notes</label><textarea id="journal-notes" rows="2" placeholder="Notes additionnelles..."></textarea></div>
+    </div><div class="modal-footer"><button type="button" class="btn btn-outline" data-close="modal-journal">Annuler</button><button type="submit" class="btn btn-primary btn-glow"><span class="btn-content"><i class="fas fa-save"></i> Enregistrer</span><span class="btn-shimmer"></span></button></div></form></div></div>
+
+    <!-- Challenge Modal -->
+    <div class="modal-overlay" id="modal-challenge"><div class="modal"><div class="modal-header"><h3 id="modal-challenge-title"><i class="fas fa-trophy"></i> Nouveau défi</h3><button class="modal-close" data-close="modal-challenge"><i class="fas fa-times"></i></button></div><form id="challenge-form"><div class="modal-body">
+        <input type="hidden" id="challenge-id">
+        <div class="form-row"><div class="form-group"><label for="challenge-title"><i class="fas fa-heading"></i> Titre *</label><input type="text" id="challenge-title" required placeholder="Nom du défi"></div><div class="form-group"><label for="challenge-category"><i class="fas fa-folder"></i> Catégorie</label><select id="challenge-category"><option value="personal">👤 Personnel</option><option value="fitness">💪 Fitness</option><option value="health">🏥 Santé</option><option value="learning">📚 Apprentissage</option><option value="creative">🎨 Créatif</option><option value="social">👥 Social</option><option value="financial">💰 Financier</option><option value="career">💼 Carrière</option><option value="spiritual">🙏 Spirituel</option><option value="other">📌 Autre</option></select></div></div>
+        <div class="form-row"><div class="form-group"><label for="challenge-status"><i class="fas fa-info-circle"></i> Statut</label><select id="challenge-status"><option value="active">🔥 En cours</option><option value="completed">✅ Complété</option><option value="paused">⏸️ En pause</option><option value="abandoned">❌ Abandonné</option></select></div><div class="form-group"><label for="challenge-difficulty"><i class="fas fa-signal"></i> Difficulté</label><select id="challenge-difficulty"><option value="easy">🟢 Facile</option><option value="medium" selected>🟡 Moyen</option><option value="hard">🟠 Difficile</option><option value="extreme">🔴 Extrême</option></select></div></div>
+        <div class="form-row"><div class="form-group"><label for="challenge-start-date"><i class="fas fa-play"></i> Date début</label><input type="date" id="challenge-start-date"></div><div class="form-group"><label for="challenge-end-date"><i class="fas fa-flag-checkered"></i> Date fin</label><input type="date" id="challenge-end-date"></div></div>
+        <div class="form-row"><div class="form-group"><label for="challenge-progress"><i class="fas fa-tasks"></i> Progression (%)</label><input type="range" id="challenge-progress" min="0" max="100" value="0"><span id="challenge-progress-val">0%</span></div></div>
+        <div class="form-group"><label for="challenge-description"><i class="fas fa-align-left"></i> Description</label><textarea id="challenge-description" rows="2" placeholder="Décrivez votre défi..."></textarea></div>
+        <div class="form-row"><div class="form-group"><label for="challenge-target"><i class="fas fa-bullseye"></i> Objectif</label><input type="text" id="challenge-target" placeholder="Ex: Courir 100km"></div><div class="form-group"><label for="challenge-reward"><i class="fas fa-gift"></i> Récompense</label><input type="text" id="challenge-reward" placeholder="Ex: Nouveau livre"></div></div>
+        <div class="form-group"><label for="challenge-tags"><i class="fas fa-tags"></i> Tags</label><input type="text" id="challenge-tags" placeholder="30jours, sport, défi..."></div>
+        <div class="form-group"><label for="challenge-notes"><i class="fas fa-sticky-note"></i> Notes</label><textarea id="challenge-notes" rows="2" placeholder="Notes..."></textarea></div>
+    </div><div class="modal-footer"><button type="button" class="btn btn-outline" data-close="modal-challenge">Annuler</button><button type="submit" class="btn btn-primary btn-glow"><span class="btn-content"><i class="fas fa-save"></i> Enregistrer</span><span class="btn-shimmer"></span></button></div></form></div></div>
 
     <!-- Confirm Modal -->
     <div class="modal-overlay" id="modal-confirm"><div class="modal modal-sm"><div class="modal-header"><h3><i class="fas fa-exclamation-circle"></i> Confirmation</h3><button class="modal-close" data-close="modal-confirm"><i class="fas fa-times"></i></button></div><div class="modal-body"><p id="confirm-message">Êtes-vous sûr ?</p></div><div class="modal-footer"><button class="btn btn-outline" data-close="modal-confirm">Annuler</button><button class="btn btn-danger" id="confirm-yes"><i class="fas fa-check"></i> Confirmer</button></div></div></div>
@@ -3080,6 +3276,11 @@
     <script src="js/portfolio.js"></script>
     <script src="js/trading-watchlist.js"></script>
     <script src="js/spiritual.js"></script>
+    <script src="js/quotes.js"></script>
+    <script src="js/moods.js"></script>
+    <script src="js/bookmarks.js"></script>
+    <script src="js/journals.js"></script>
+    <script src="js/challenges.js"></script>
     <script src="js/notifications.js"></script>
     <script src="js/settings.js"></script>
     <script src="js/app.js"></script>
