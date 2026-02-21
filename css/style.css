@@ -3326,11 +3326,18 @@ body.focus-mode .quick-fab-dock { right: 1.4rem; }
 /* Enhanced category cards */
 .category-card {
     background: linear-gradient(145deg,
-        rgba(14, 16, 26, 0.96) 0%,
-        rgba(20, 24, 40, 0.93) 100%
+        rgba(45, 50, 75, 0.85) 0%,
+        rgba(55, 60, 90, 0.80) 100%
     ) !important;
     backdrop-filter: blur(20px) !important;
     -webkit-backdrop-filter: blur(20px) !important;
+}
+[data-theme="light"] .category-card {
+    background: linear-gradient(145deg,
+        rgba(255, 255, 255, 0.95) 0%,
+        rgba(245, 245, 250, 0.92) 100%
+    ) !important;
+    border-color: rgba(0, 0, 0, 0.08) !important;
 }
 
 /* Goal card enhancements */
